@@ -1,4 +1,5 @@
-from src.simplex import SimplicialComplex, KSimplex
+#from src.simplex import SimplicialComplex, KSimplex
+from src.simplexdisk import SimplicialComplex,KSimplex # For disk based P intervals
 from itertools import combinations
 __author__ = 'Naheed'
 
@@ -37,7 +38,7 @@ class iFiltration:
 
 class Filtration:
     def __init__(self):
-        self.listof_iFiltration = {}
+        self.listof_iFiltration = {} # use shelve here
         self.simplex_to_filtrationmap = {}
         self.maxdeg = 0
 
@@ -74,10 +75,11 @@ class Filtration:
             if simplex.degree is None:
                 simplex.degree = i
             self.listof_iFiltration[i].add_simplex_to_filtration(simplex)
+            self.simplex_to_filtrationmap[tuple(simplex.kvertices)] = i
         else:
             ksimplex = KSimplex(simplex, i)
             self.listof_iFiltration[i].add_simplex_to_filtration(ksimplex)
-        self.simplex_to_filtrationmap[tuple(simplex.kvertices)] = i
+            self.simplex_to_filtrationmap[tuple(ksimplex.kvertices)] = i
 
     def add_simplices_from_file(self, filename):
         with open(filename, 'r') as fp:
@@ -91,26 +93,30 @@ class Filtration:
                 self.add_simplex_toith_filtration(int(filtr_idx), ksimplex_obj)
 
     def add_simplices_from_cliquefiles(self, dir):
-        base = 'clique_'
+        base = 'pclique_'
         from os import path, listdir
         for fil in listdir(dir):
             if fil.startswith(base):
                 filtr_idx = int(fil.split("_")[1][0])
                 print 'adding filtration: ' + str(filtr_idx)
                 with open(dir + '/' + fil, 'r') as fp:
-                    while 1:
-                        simplex = fp.readline()
+                    print 'filename: ',dir + '/' + fil
+                    for simplex in fp:
                         # print simplex
                         if not simplex:
                             break
-                        ksimplex_obj = KSimplex(sorted(int(v) for v in simplex.split()))
-                        added_already = False
-                        for i in range(filtr_idx - 1):
-                            if self.has_ksimplex_in_ithfiltration(ksimplex_obj, i):
-                                added_already = True
+                        #ksimplex_obj = KSimplex(sorted(int(v) for v in simplex.split()))
+                        ksimplex_obj = KSimplex(
+                            [int(v) for v in simplex.split()])  # They are already assumed to be sorted.
+                        #added_already = False
+                        #for i in range(filtr_idx - 1):
+                         #   if self.has_ksimplex_in_ithfiltration(ksimplex_obj, i):
+                          #      added_already = True
 
-                        if not added_already:
-                            self.add_simplex_toith_filtration(filtr_idx - 1, ksimplex_obj)
+                        #if not added_already:
+                        self.add_simplex_toith_filtration(filtr_idx - 1, ksimplex_obj)
+                            #print 'added', ksimplex_obj
+                print 'done adding'
 
     def add_simplices_from_cliquefiles_ensureinclusion(self, dir):
         base = 'clique_'
@@ -119,13 +125,14 @@ class Filtration:
             if fil.startswith(base):
                 filtr_idx = int(fil.split("_")[1][0])
                 print 'adding filtration: ' + str(filtr_idx)
+                print 'filename: ',dir + '/' + fil
                 with open(dir + '/' + fil, 'r') as fp:
-                    while 1:
-                        simplex = fp.readline()
-                        # print simplex
+                    for simplex in fp:
+                        #print simplex
                         if not simplex:
                             break
-                        ksimplex_obj = KSimplex(sorted(int(v) for v in simplex.split()))
+                        #ksimplex_obj = KSimplex(sorted(int(v) for v in simplex.split()))
+                        ksimplex_obj = KSimplex([int(v) for v in simplex.split()]) # They are already assumed to be sorted.
                         for sz in reversed(range(ksimplex_obj.k+1)):
                             times = None
                             sz_decflag = False
