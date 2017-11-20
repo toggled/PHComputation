@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from src.simplex import KSimplex, SimplicialComplex
 from src.Filtration import Filtration
 from src.boundaryoperator import Boundary
-import copy
+import copy,sys
 from src.ComputeInterval import IntervalComputation
 
 def test_manual_simplex():
@@ -53,7 +53,9 @@ def test_nested_boundary_simplicialcomplex():
 
 def test_manual_Filtration():
     fil = Filtration()
+    print 'size occupied:', sys.getsizeof(fil)
     fil.add_simplex_toith_filtration(0, [0])
+    print 'size occupied:', sys.getsizeof(fil.get_ksimplices_from_ithFiltration(0,0))
     fil.add_simplex_toith_filtration(0, [1])
     fil.add_simplex_toith_filtration(1, [2])
     fil.add_simplex_toith_filtration(1, [3])
@@ -67,22 +69,30 @@ def test_manual_Filtration():
 
 def test_persistencehomology():
     fil = Filtration()
-    name = "/Users/naheed/NetBeansProjects/jplex_explore/testcase_2"
+    print 'size occupied:', sys.getsizeof(fil)
+
+    #name = "/Users/naheed/NetBeansProjects/jplex_explore/testcase_2"
     #name = "/Users/naheed/NetBeansProjects/jplex_explore/graph1"
+    #name = "/Users/naheed/NetBeansProjects/Toy-1.5 63 (6 big cycle)"
+    #name = "/Users/naheed/NetBeansProjects/Trivial-1"
+    #name = "/Users/naheed/NetBeansProjects/Dexa-Paper Dataset"
+    name = "/Users/naheed/NetBeansProjects/jplex_explore/watts-strogatz/watts-strogatz_11"
     #name = "/Users/naheed/NetBeansProjects/jplex_explore/3437-7"
     #name = "/Users/naheed/NetBeansProjects/Toy-2 262143"
     #name = "/Users/naheed/NetBeansProjects/Toy-3 2047 (11 Vertex Big Cylce)"
     #name = "/Users/naheed/NetBeansProjects/jplex_explore/netscience_10101023"
-    fil.add_simplices_from_cliquefiles_ensureinclusion(name)
+    #fil.add_simplices_from_cliquefiles_ensureinclusion(name)
 
     #fil.add_simplices_from_file('../../data/test_simplexfromfile.txt')
+    fil.add_simplices_from_cliquefiles(name)
     print 'total number of Simplices: ',len(fil)
-    print fil
+
+
     ci = IntervalComputation(fil)
     ci.compute_intervals()
     ci.print_BettiNumbers()
 
-    ci.get_representativs()
+    #ci.get_representativs()
     #print ci.betti_intervals
 
 if __name__ == "__main__":

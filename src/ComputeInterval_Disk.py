@@ -1,6 +1,7 @@
 __author__ = 'Naheed'
 from simplexdisk import KSimplex
 from boundaryoperator import Boundary
+import memory_profiler
 
 __author__ = 'Naheed'
 
@@ -8,8 +9,9 @@ INF = float('inf')
 
 
 class IntervalComputation:
+
     def __init__(self, filtr):
-        self.filtration_ar = [] # Memory Map it
+        self.filtration_ar = [] # I will dump them as pickle objects and later use unpickle it in COmpute_interval
         self.simplex_to_indexmap = {} # use shelve here
         self.betti_intervals = None
         #self.representative_cycles = []
@@ -22,8 +24,8 @@ class IntervalComputation:
         self.maxdim = maxk
         cnt = 0
         print 'ok'
-        for k in range(maxk + 1):
-            for i in range(len(filtr.listof_iFiltration)):
+        for i in range(len(filtr.listof_iFiltration)):
+            for k in range(maxk + 1):
                 for ksimplex in filtr.get_ksimplices_from_ithFiltration(k, i):
                     vertexlist = tuple(ksimplex.kvertices)
                     if vertexlist not in self.simplex_to_indexmap:
@@ -38,6 +40,7 @@ class IntervalComputation:
         self.j_ar = [None] * len(self.filtration_ar)
 
         #print self.simplex_to_indexmap
+
 
     def compute_intervals(self, K=None):
         """
@@ -56,6 +59,7 @@ class IntervalComputation:
             if K:
                 if sigmaj.k > K + 1:  # We only want  dimension upto K, i.e birth-death of 0,1,...,upto K simplices.
                     break  # K-simplices occur as boundary of K+1 simplices. therefore we need sigmaj.k <= K+1
+
             d,basis_z = self.remove_pivot_rows(sigmaj)
             #print d
             if len(d) == 0:
@@ -126,6 +130,18 @@ class IntervalComputation:
                 repr += str(tup)
             repr += '\n'
         print repr
+
+    def write_Intervalstofile(self,filename):
+        with open(filename,'w') as f:
+            for dim, li in enumerate(self.betti_intervals):
+                if dim == 1:
+                    f.writelines(str(dim)+"\n")
+                    for tup in li:
+                        if tup[0] == tup[1]:
+                            continue
+                        f.writelines(str(tup)+"\n")
+
+
 
     # def get_representativs(self):
     #     """

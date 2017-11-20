@@ -24,9 +24,11 @@ class IntervalComputation:
             for i in range(len(filtr.listof_iFiltration)):
                 for ksimplex in filtr.get_ksimplices_from_ithFiltration(k, i):
                     if ksimplex:
-                        self.simplex_to_indexmap[tuple(ksimplex.kvertices)] = cnt
-                        cnt += 1
-                        self.filtration_ar.append(ksimplex)
+                        vertexlist = tuple(ksimplex.kvertices)
+                        if vertexlist not in self.simplex_to_indexmap:
+                            self.simplex_to_indexmap[vertexlist] = cnt
+                            cnt += 1
+                            self.filtration_ar.append(ksimplex)
 
         # print [str(x) for x in self.filtration_ar]
 
@@ -41,6 +43,7 @@ class IntervalComputation:
         :param K: K as in Betti_K
         :return: Betti_0,Betti_1,...,upto Betti_K intervals
         """
+        print "Computing Intervals.."
         if K:
             self.betti_intervals = [[] for i in range(K + 1)]
             self.representative_cycles = [[] for i in range(K + 1)]
@@ -62,7 +65,7 @@ class IntervalComputation:
                 self.j_ar[i] = j
                 # print '+'.join([str(sigma) for sigma in d])
                 self.T[i] = d
-                if (self.filtration_ar[i].degree <= sigmaj.degree):
+                if (self.filtration_ar[i].degree < sigmaj.degree):
                     self.betti_intervals[k].append((self.filtration_ar[i].degree, sigmaj.degree))
                     self.representative_cycles[k].append(basis_z)
 
@@ -76,7 +79,7 @@ class IntervalComputation:
                 self.representative_cycles[k].append(sigmaj.kvertices)
 
     def remove_pivot_rows(self, simplex):
-        assert isinstance(simplex, KSimplex)
+        #assert isinstance(simplex, KSimplex)
         k = simplex.k
         bd = Boundary()
         d = set([]) # the column which will be reduced
